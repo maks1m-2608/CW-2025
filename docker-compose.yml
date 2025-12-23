@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # сервис базы данных PostgreSQL
+  db:
+    image: postgres:15
+    container_name: brainstorm_db_cont
+    restart: always
+    environment:
+      POSTGRES_USER: buddy_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: brainstorm_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # сохраняем данные БД в папку postgres_data внутри проекта
+      - ./postgres_data:/var/lib/postgresql/data
+
+  # сервис приложения FastAPI
+  app:
+    build: .
+    container_name: brainstorm_app_cont
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://buddy_user:your_password@db:5432/brainstorm_db
+      OLLAMA_HOST: http://172.22.16.1:11434
+
+volumes:
+  postgres_data:

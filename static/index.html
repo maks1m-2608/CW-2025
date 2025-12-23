@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Idea Creator</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        :root { --bg: #f3f4f6; --card: #ffffff; --primary: #8b5cf6; --text: #1f2937; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 2rem; }
+        .card { background: var(--card); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h1 { margin-top: 0; color: var(--primary); }
+        input, button { width: 100%; padding: 0.8rem; margin-top: 1rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 1rem; box-sizing: border-box; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        #output { margin-top: 1.5rem; padding: 1rem; background: #eef2ff; border-radius: 0.5rem; display: none; }
+        .idea-item { margin-bottom: 0.5rem; padding-left: 1.2rem; position: relative; }
+        .idea-item::before { content: "•"; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>💡 Idea Creator</h1>
+        <p>Введите тему, и Idea Creator предложит идеи.</p>
+        
+        <input type="text" id="topicInput" placeholder="Например: Названия для кофейни">
+        <input type="number" id="countInput" value="3" min="1" max="10">
+        <button id="sendBtn">Сгенерировать идеи</button>
+
+        <div id="output">
+            <strong>Результат:</strong>
+            <div id="ideasContent" style="margin-top: 0.5rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('sendBtn');
+        const output = document.getElementById('output');
+        const ideasContent = document.getElementById('ideasContent');
+
+        btn.onclick = async () => {
+            const topic = document.getElementById('topicInput').value;
+            const count = document.getElementById('countInput').value;
+
+            if (!topic) return alert("Введите тему!");
+
+            btn.disabled = true;
+            btn.innerText = "Idea Creator думает...";
+            output.style.display = "none";
+
+            try {
+                const response = await fetch('/brainstorm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: topic, count: parseInt(count) })
+                });
+
+                const data = await response.json();
+                
+                ideasContent.innerHTML = "";
+                // Достаем идеи из ответа (подстраиваем под структуру вашего JSON)
+                const ideas = data.ideas || data; 
+
+                ideas.forEach(text => {
+                    const div = document.createElement('div');
+                    div.className = 'idea-item';
+                    div.innerText = text;
+                    ideasContent.appendChild(div);
+                });
+
+                output.style.display = "block";
+            } catch (err) {
+                alert("Ошибка связи с сервером");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Сгенерировать идеи";
+            }
+        };
+    </script>
+</body>
+</html>

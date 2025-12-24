@@ -92,23 +92,23 @@ TRUNCATE topics, ideas RESTART IDENTITY CASCADE;
 - **Дружелюбный интерфейс** - Минималистичный и удобный дизайн
 
 ## Старт приложения
-<img scr = ./screenshots/1.png>
+<img src="./screenshots/1.png">
 
 ## Ввод темы для получения идей
 - Введите название темы для генерации идей
-<img scr = ./screenshots/2.png>
+<img src="./screenshots/2.png">
 
 ## Выбор количества генерируемых идей
 - Выберите количество генерируемых идей
-<img scr = ./screenshots/3.png>
+<img src="./screenshots/3.png">
 
 ## Запуск процесса генерации
 - Нажмите на кнопку "Сгенерировать идеи"
-<img scr = ./screenshots/1.png>
+<img src="./screenshots/4.png">
 
 ## Получение результатов
 - Получите результат в окне ниже
-<img scr = ./screenshots/1.png>
+<img src="./screenshots/5.png">
 
 ## История генераций
 **Все генерации автоматически сохраняются** в базу данных
@@ -120,7 +120,8 @@ TRUNCATE topics, ideas RESTART IDENTITY CASCADE;
 ## Возможные ошибки и их решение
 
 ### Ошибка при запуске приложения
-<img scr = ./screenshots/6.png>
+<img src="./screenshots/6.png">
+
 **Ошибка:**
 Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint brainstorm_db_cont (8355d797e534deec7f9109fea0191f11afa55fbad6e09fa6ecb9066ace1ef4ab): failed to bind host port for 0.0.0.0:5432:172.20.0.2:5432/tcp: address already in use
 
@@ -134,7 +135,8 @@ sudo service postgresql stop
 ```
 
 ### Ошибка времени ожидания при генерации идей
-<img scr = ./screenshots/7.png>
+<img src="./screenshots/7.png">
+
 **Ошибка:**
 Error: Request timed out.
 

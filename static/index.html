@@ -6,15 +6,19 @@
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <style>
         :root { --bg: #f3f4f6; --card: #ffffff; --primary: #8b5cf6; --text: #1f2937; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 2rem; }
-        .card { background: var(--card); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        .card { background: var(--card); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 600px; margin-bottom: 2rem; }
         h1 { margin-top: 0; color: var(--primary); }
         input, button { width: 100%; padding: 0.8rem; margin-top: 1rem; border-radius: 0.5rem; border: 1px solid #d1d5db; font-size: 1rem; box-sizing: border-box; }
         button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         button:hover { opacity: 0.9; }
-        #output { margin-top: 1.5rem; padding: 1rem; background: #eef2ff; border-radius: 0.5rem; display: none; }
-        .idea-item { margin-bottom: 0.5rem; padding-left: 1.2rem; position: relative; }
-        .idea-item::before { content: "•"; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
+        #output, #historyWrapper { margin-top: 1.5rem; padding: 1rem; background: #eef2ff; border-radius: 0.5rem; }
+        #output, #historyWrapper { display: none; }
+        /* Стили для кнопок управления историей */
+        .history-controls { display: flex; gap: 10px; }
+        #hideTopicsBtn { background: #6b7280; display: none; } /* Серый цвет для кнопки скрытия */
+        .idea-item, .topic-item { margin-bottom: 0.5rem; padding-left: 1.2rem; position: relative; }
+        .idea-item::before, .topic-item::before { content: "•"; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,15 +36,34 @@
         </div>
     </div>
 
+    <div class="card">
+        <h2>📜 История генераций</h2>
+        <div class="history-controls">
+            <button id="loadTopicsBtn">Получить список всех тем</button>
+            <button id="hideTopicsBtn">Скрыть список</button>
+        </div>
+        
+        <div id="historyWrapper">
+            <div id="topicsList"></div>
+        </div>
+    </div>
+
     <script>
+        // Элементы генерации
         const btn = document.getElementById('sendBtn');
         const output = document.getElementById('output');
         const ideasContent = document.getElementById('ideasContent');
+        
+        // Элементы истории
+        const loadTopicsBtn = document.getElementById('loadTopicsBtn');
+        const hideTopicsBtn = document.getElementById('hideTopicsBtn');
+        const historyWrapper = document.getElementById('historyWrapper');
+        const topicsList = document.getElementById('topicsList');
 
+        // Логика генерации идей
         btn.onclick = async () => {
             const topic = document.getElementById('topicInput').value;
             const count = document.getElementById('countInput').value;
-
             if (!topic) return alert("Введите тему!");
 
             btn.disabled = true;
@@ -53,20 +76,16 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title: topic, count: parseInt(count) })
                 });
-
                 const data = await response.json();
                 
                 ideasContent.innerHTML = "";
-                // Достаем идеи из ответа (подстраиваем под структуру вашего JSON)
                 const ideas = data.ideas || data; 
-
                 ideas.forEach(text => {
                     const div = document.createElement('div');
                     div.className = 'idea-item';
                     div.innerText = text;
                     ideasContent.appendChild(div);
                 });
-
                 output.style.display = "block";
             } catch (err) {
                 alert("Ошибка связи с сервером");
@@ -74,6 +93,42 @@
                 btn.disabled = false;
                 btn.innerText = "Сгенерировать идеи";
             }
+        };
+
+        // Логика получения списка
+        loadTopicsBtn.onclick = async () => {
+            loadTopicsBtn.innerText = "Загрузка...";
+            try {
+                const response = await fetch('/topics');
+                const topics = await response.json();
+                
+                topicsList.innerHTML = "";
+                if (topics.length === 0) {
+                    topicsList.innerText = "Список пока пуст.";
+                } else {
+                    topics.forEach(topic => {
+                        const div = document.createElement('div');
+                        div.className = 'topic-item';
+                        const date = new Date(topic.created_at).toLocaleString('ru-RU');
+                        div.innerText = `${topic.title} [${date}]`;
+                        topicsList.appendChild(div);
+                    });
+                }
+                
+                // Показываем список и кнопку "Скрыть"
+                historyWrapper.style.display = "block";
+                hideTopicsBtn.style.display = "block";
+            } catch (err) {
+                alert("Не удалось загрузить темы");
+            } finally {
+                loadTopicsBtn.innerText = "Получить список всех тем";
+            }
+        };
+
+        // Логика скрытия списка
+        hideTopicsBtn.onclick = () => {
+            historyWrapper.style.display = "none";
+            hideTopicsBtn.style.display = "none";
         };
     </script>
 </body>

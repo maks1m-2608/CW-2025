@@ -31,6 +31,14 @@ def brainstorm(request: db.TopicCreate, session: Session = Depends(db.get_db)):
     
     return {"topic": request.title, "ideas": generated_ideas}
 
+@app.get("/topics", response_model=List[db.TopicSchema], summary="Получение списка всех тем")
+def list_topics(session: Session = Depends(db.get_db)):
+    """
+    Возвращает список всех когда-либо созданных тем для генерации.
+    """
+    topics = db.get_all_topics(session)
+    return topics
+
 @app.get("/")
 async def read_index():
     return FileResponse('static/index.html')

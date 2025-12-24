@@ -111,7 +111,14 @@ TRUNCATE topics, ideas RESTART IDENTITY CASCADE;
 <img src="./screenshots/5.png">
 
 ## История генераций
+Раздел "История генераций" показывает:
+- Тема для генерации идей
+- Дата и время операции
 **Все генерации автоматически сохраняются** в базу данных
+Для просмотра истории генераций нажмите кнопку **Получить список всех тем**
+<img src="./screenshots/6.png">
+<img src="./screenshots/7.png">
+Для закрытия списка всех сгенерированных тем нажмите кнопку **Скрыть список**
 
 ## Совместимость:
 - Все современные браузеры (Chrome, Firefox, Safari, Edge)
@@ -120,7 +127,7 @@ TRUNCATE topics, ideas RESTART IDENTITY CASCADE;
 ## Возможные ошибки и их решение
 
 ### Ошибка при запуске приложения
-<img src="./screenshots/6.png">
+<img src="./screenshots/8.png">
 
 **Ошибка:**
 Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint brainstorm_db_cont (8355d797e534deec7f9109fea0191f11afa55fbad6e09fa6ecb9066ace1ef4ab): failed to bind host port for 0.0.0.0:5432:172.20.0.2:5432/tcp: address already in use
@@ -135,7 +142,7 @@ sudo service postgresql stop
 ```
 
 ### Ошибка времени ожидания при генерации идей
-<img src="./screenshots/7.png">
+<img src="./screenshots/9.png">
 
 **Ошибка:**
 Error: Request timed out.

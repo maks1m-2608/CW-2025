@@ -31,7 +31,6 @@ class Idea(Base):
     topic = relationship("Topic", back_populates="ideas")
 
 
-
 class TopicCreate(BaseModel):
     title: str
     count: int = 10
@@ -39,6 +38,14 @@ class TopicCreate(BaseModel):
 class BrainstormResponse(BaseModel):
     topic: str
     ideas: List[str]
+
+class TopicSchema(BaseModel):
+    id: int
+    title: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 def create_brainstorm_session(db: Session, topic_text: str, ideas_list: List[str]):
     db_topic = Topic(title=topic_text)
@@ -51,6 +58,9 @@ def create_brainstorm_session(db: Session, topic_text: str, ideas_list: List[str
     
     db.commit()
     return db_topic
+
+def get_all_topics(db: Session):
+    return db.query(Topic).order_by(Topic.created_at.desc()).all()
 
 def get_db():
     db = SessionLocal()

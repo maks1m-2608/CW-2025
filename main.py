@@ -1,42 +1,48 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
+from contextlib import asynccontextmanager
 
 import database as db
 from llm_service import llm_brain
 
-# создание таблиц
-db.Base.metadata.create_all(bind=db.engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # создание таблиц при старте
+    async with db.engine.begin() as conn:
+        await conn.run_sync(db.Base.metadata.create_all)
+    yield
 
 app = FastAPI(
     title="Idea Creator",
-    description="API для генерации идей с помощью LLM (Mistral)",
-    version="1.0.0"
+    description="API для генерации идей с помощью LLM (Mistral) [Async]",
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.post("/brainstorm", response_model=db.BrainstormResponse, summary="Генерация идей")
-def brainstorm(request: db.TopicCreate, session: Session = Depends(db.get_db)):
+async def brainstorm(request: db.TopicCreate, session: AsyncSession = Depends(db.get_db)):
     """
-    Принимает тему, генерирует идеи через LLM и сохраняет в БД.
+    Принимает тему, генерирует идеи через LLM и сохраняет в БД асинхронно.
     """
     # генерация
-    generated_ideas = llm_brain.generate_ideas(request.title, request.count)
+    generated_ideas = await llm_brain.generate_ideas(request.title, request.count)
     
     # сохранение 
-    db.create_brainstorm_session(session, request.title, generated_ideas)
+    await db.create_brainstorm_session(session, request.title, generated_ideas)
     
     return {"topic": request.title, "ideas": generated_ideas}
 
 @app.get("/topics", response_model=List[db.TopicSchema], summary="Получение списка всех тем")
-def list_topics(session: Session = Depends(db.get_db)):
+async def list_topics(session: AsyncSession = Depends(db.get_db)):
     """
     Возвращает список всех когда-либо созданных тем для генерации.
     """
-    topics = db.get_all_topics(session)
+    topics = await db.get_all_topics(session)
     return topics
 
 @app.get("/")

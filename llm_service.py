@@ -1,6 +1,6 @@
 import os
 import json
-from openai import OpenAI
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,12 +9,12 @@ class LLMService:
     def __init__(self):
         windows_ip = os.getenv("WINDOWS_IP")
         
-        self.client = OpenAI(
+        self.client = AsyncOpenAI(
             base_url=f"http://{windows_ip}:11434/v1",
             api_key="ollama"
         )
 
-    def generate_ideas(self, topic: str, count: int) -> list[str]:
+    async def generate_ideas(self, topic: str, count: int) -> list[str]:
         prompt = (
             f"Сгенерируй ровно {count} коротких названий (идей) для темы: '{topic}'.\n"
             "ПРАВИЛА:\n"
@@ -24,7 +24,7 @@ class LLMService:
             "4. Верни ТОЛЬКО JSON массив строк. Пример: [\"Название 1\", \"Название 2\"]."
         )
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model="mistral",
                 messages=[
                     {"role": "system", "content": "You are a creative assistant that strictly outputs JSON. Use normal spaces in text, never underscores."},

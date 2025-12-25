@@ -25,7 +25,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://buddy_user:your_password@db:5432/brainstorm_db
+      DATABASE_URL: postgresql+asyncpg://buddy_user:your_password@db:5432/brainstorm_db
       OLLAMA_HOST: http://172.22.16.1:11434
 
 volumes:
